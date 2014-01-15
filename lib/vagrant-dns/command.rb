@@ -11,7 +11,7 @@ module VagrantDNS
     def execute
       options = {}
       opts = OptionParser.new do |opts|
-        opts.banner = "Usage: vagrant dns [vm-name] [-i|--install] [-u|--uninstall] [--pruge] [-s|--start] [-S|--stop] [-r|--restart] [-o|--ontop]"
+        opts.banner = "Usage: vagrant dns [vm-name] [-i|--install] [-u|--uninstall] [--pruge] [-s|--start] [-S|--stop] [-r|--restart] [-f|--fg]"
         opts.separator ""
 
         opts.on("--install", "-i", "Install DNS config for machine domain") do
@@ -39,8 +39,8 @@ module VagrantDNS
           options[:restart] = true
         end
 
-        opts.on("--ontop", "-o", "Start the DNS service on top. Debugging only, this blocks Vagrant!") do
-          options[:ontop] = true
+        opts.on("--fg", "-f", "Start the DNS service in the foreground. Debugging only, this blocks Vagrant!") do
+          options[:fg] = true
         end
       end
 
@@ -84,7 +84,9 @@ module VagrantDNS
     def manage_service(vms, options)
       service = VagrantDNS::Service.new(tmp_path)
 
-      if options[:start]
+      if options[:fg]
+        service.start_fg!
+      elsif options[:start]
         service.start!
       elsif options[:stop]
         service.stop!
